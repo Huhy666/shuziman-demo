@@ -1,0 +1,20 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="szBg" x1="8" y1="4" x2="56" y2="60" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#151D42"/>
+      <stop offset="1" stop-color="#3C2B74"/>
+    </linearGradient>
+    <linearGradient id="szStroke" x1="16" y1="14" x2="50" y2="51" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8D7CFF"/>
+      <stop offset="1" stop-color="#FF9A6A"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="18" fill="url(#szBg)"/>
+  <rect x="9" y="9" width="46" height="46" rx="13" stroke="url(#szStroke)" stroke-width="1.5" opacity="0.9"/>
+  <path d="M18 21.5C18 18.4624 20.4624 16 23.5 16H37" stroke="url(#szStroke)" stroke-width="3" stroke-linecap="round"/>
+  <path d="M18 42.5C18 45.5376 20.4624 48 23.5 48H37" stroke="url(#szStroke)" stroke-width="3" stroke-linecap="round"/>
+  <path d="M18 29V35" stroke="#8D7CFF" stroke-width="3" stroke-linecap="round"/>
+  <path d="M28.5 26.2C28.5 24.9146 29.9123 24.1219 30.9999 24.7981L44.3248 33.0631C45.368 33.7113 45.368 35.2253 44.3248 35.8735L30.9999 44.1385C29.9123 44.8147 28.5 44.022 28.5 42.7366V26.2Z" fill="white"/>
+  <circle cx="49" cy="15" r="5.5" fill="#FF8A5B"/>
+  <circle cx="49" cy="15" r="2.3" fill="#FFF3EC"/>
+</svg>
