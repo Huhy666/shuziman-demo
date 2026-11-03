@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>数智漫 · 数字人口播模块 | 胡瀚允</title>
+  <meta name="description" content="数智漫 AI 短视频创作平台——数字人口播模块展示：人物图与商品图上传、前置图生成、卖点文案、TTS 配音与口播视频合成。">
+  <meta name="theme-color" content="#0a1024">
+  <meta property="og:title" content="数智漫 · 数字人口播模块">
+  <meta property="og:description" content="让一张人物图，变成一条口播视频。数字人口播模块的界面、流程与工程方案展示。">
+  <meta property="og:type" content="website">
+  <link rel="icon" type="image/svg+xml" href="assets/mark.svg">
+  <style>
+    :root {
+      --ink: #11162f;
+      --muted: #68738c;
+      --line: #e5e8f2;
+      --bg: #f5f6fa;
+      --surface: #ffffff;
+      --primary: #6c5cf6;
+      --primary-deep: #5546e8;
+      --primary-soft: #eeecff;
+      --accent: #ff8a5b;
+      --accent-soft: #fff0e9;
+      --navy: #0a1024;
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --shadow: 0 24px 70px rgba(17, 22, 47, 0.10);
+      --shadow-soft: 0 10px 32px rgba(17, 22, 47, 0.07);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: "Aptos", "HarmonyOS Sans SC", "Microsoft YaHei UI", "PingFang SC", "Noto Sans SC", sans-serif;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+    .container { width: min(1180px, calc(100% - 48px)); margin: 0 auto; }
+
+    /* Header */
+    .site-header {
+      position: absolute;
+      inset: 0 0 auto 0;
+      z-index: 20;
+      padding: 18px 0;
+    }
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .brand { display: flex; align-items: center; gap: 11px; color: #fff; }
+    .brand img { width: 36px; height: 36px; filter: drop-shadow(0 6px 16px rgba(0,0,0,.35)); }
+    .brand strong { font-size: 17px; letter-spacing: .06em; }
+    .brand em { font-style: normal; color: rgba(255,255,255,.55); font-size: 12px; margin-left: 5px; letter-spacing: .08em; }
+    .nav { display: flex; align-items: center; gap: 26px; font-size: 13px; color: rgba(255,255,255,.72); }
+    .nav a { transition: color .2s ease; }
+    .nav a:hover { color: #fff; }
+    .nav .nav-cta {
+      padding: 8px 15px;
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 999px;
+      color: #fff;
+      background: rgba(255,255,255,.08);
+      backdrop-filter: blur(8px);
+    }
+
+    /* Hero */
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 132px 0 150px;
+      color: #fff;
+      background:
+        radial-gradient(circle at 78% 0%, rgba(255,138,91,.30), transparent 26rem),
+        radial-gradient(circle at 12% 8%, rgba(108,92,246,.38), transparent 28rem),
+        linear-gradient(135deg, #070c1c 0%, #0d1530 52%, #211a4c 100%);
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -10% -45% -10%;
+      height: 60%;
+      background: radial-gradient(ellipse at center, rgba(108,92,246,.28), transparent 65%);
+      pointer-events: none;
+    }
+    .hero-grid {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: 1.18fr .82fr;
+      gap: 58px;
+      align-items: center;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      color: #b9b2ff;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before {
+      content: "";
+      width: 26px;
+      height: 1px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(2.55rem, 5vw, 4.5rem);
+      line-height: 1.08;
+      letter-spacing: -.05em;
+      font-weight: 800;
+    }
+    h1 span {
+      background: linear-gradient(100deg, #fff 0%, #c9c2ff 52%, #ffb596 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .hero-copy p {
+      max-width: 610px;
+      margin: 22px 0 0;
+      color: rgba(238,240,255,.76);
+      font-size: 16px;
+      line-height: 1.8;
+    }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 46px;
+      padding: 0 21px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 750;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-primary {
+      color: #fff;
+      background: linear-gradient(135deg, var(--primary) 0%, #8a78ff 62%, var(--accent) 140%);
+      box-shadow: 0 14px 30px rgba(108,92,246,.32);
+    }
+    .btn-ghost {
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.22);
+      background: rgba(255,255,255,.07);
+      backdrop-filter: blur(8px);
+    }
+    .hero-note {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 20px;
+      color: rgba(255,255,255,.52);
+      font-size: 11.5px;
+    }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: #65e0b0; box-shadow: 0 0 0 4px rgba(101,224,176,.12); }
+
+    .hero-card {
+      padding: 24px;
+      border: 1px solid rgba(255,255,255,.13);
+      border-radius: 22px;
+      background: rgba(255,255,255,.07);
+      box-shadow: 0 30px 70px rgba(0,0,0,.24);
+      backdrop-filter: blur(16px);
+    }
+    .hero-card h2 {
+      margin: 0 0 14px;
+      color: rgba(255,255,255,.58);
+      font-size: 10px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+    .hero-card .row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 12px 0;
+      border-top: 1px solid rgba(255,255,255,.09);
+    }
+    .hero-card .row:first-of-type { border-top: 0; }
+    .hero-card .row span { color: rgba(255,255,255,.58); font-size: 12px; }
+    .hero-card .row strong { color: #fff; font-size: 13.5px; text-align: right; }
+    .hero-card .row strong em { font-style: normal; color: #ffc4a9; }
+
+    /* Product screenshot */
+    .product-wrap {
+      position: relative;
+      z-index: 5;
+      margin-top: -92px;
+    }
+    .product-frame {
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.55);
+      border-radius: 22px;
+      background: #fff;
+      box-shadow: 0 34px 90px rgba(17,22,47,.18);
+    }
+    .browser-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 38px;
+      padding: 0 15px;
+      border-bottom: 1px solid #e9ecf5;
+      background: linear-gradient(180deg, #fbfcff, #f4f6fb);
+    }
+    .browser-bar i {
+      width: 9px; height: 9px; border-radius: 50%; background: #d9deea; display: block;
+    }
+    .browser-bar i:nth-child(1) { background: #ff8f8f; }
+    .browser-bar i:nth-child(2) { background: #ffd479; }
+    .browser-bar i:nth-child(3) { background: #7fe0b0; }
+    .browser-bar .url {
+      flex: 1;
+      margin-left: 8px;
+      padding: 5px 12px;
+      border-radius: 7px;
+      background: #fff;
+      border: 1px solid #e7eaf3;
+      color: #97a0b5;
+      font-size: 10.5px;
+      letter-spacing: .02em;
+    }
+    .product-frame img {
+      width: 100%;
+      max-height: 760px;
+      object-fit: cover;
+      object-position: top center;
+    }
+    .shot-caption {
+      margin: 14px 4px 0;
+      color: #8a93a8;
+      font-size: 11.5px;
+      text-align: center;
+    }
+
+    /* Sections */
+    section.block { padding: 86px 0; }
+    .section-head { max-width: 760px; margin-bottom: 38px; }
+    #tech .section-head { max-width: 940px; }
+    .section-kicker {
+      display: inline-block;
+      margin-bottom: 10px;
+      color: var(--primary-deep);
+      font-size: 10.5px;
+      font-weight: 800;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+    h2 {
+      margin: 0;
+      font-size: clamp(1.75rem, 3.2vw, 2.55rem);
+      line-height: 1.2;
+      letter-spacing: -.035em;
+      font-weight: 800;
+    }
+    .section-head p {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 14.5px;
+      line-height: 1.8;
+    }
+
+    .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .feature-card {
+      padding: 26px 24px 24px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      box-shadow: var(--shadow-soft);
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+    .icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 42px;
+      height: 42px;
+      margin-bottom: 17px;
+      border-radius: 13px;
+      background: var(--primary-soft);
+      color: var(--primary-deep);
+      font-size: 20px;
+    }
+    .feature-card:nth-child(2) .icon { background: var(--accent-soft); color: #e16a3c; }
+    .feature-card:nth-child(3) .icon { background: #e9f8f1; color: #1f9d70; }
+    .feature-card h3 { margin: 0 0 8px; font-size: 17px; letter-spacing: -.02em; }
+    .feature-card p { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.75; }
+    .feature-card .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
+    .tag {
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: #f5f6fb;
+      color: #6b7690;
+      font-size: 10.5px;
+      font-weight: 650;
+    }
+
+    /* Flow */
+    .flow-wrap {
+      padding: 30px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      box-shadow: var(--shadow-soft);
+    }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 12px;
+      align-items: stretch;
+    }
+    .flow-step {
+      position: relative;
+      padding: 18px 14px;
+      border-radius: 15px;
+      background: linear-gradient(180deg, #fbfbff, #f6f7fc);
+      border: 1px solid #eceef7;
+      text-align: center;
+    }
+    .flow-step:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      top: 50%;
+      right: -11px;
+      transform: translateY(-50%);
+      color: #b7bee0;
+      font-size: 14px;
+      z-index: 2;
+    }
+    .flow-step b {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 27px;
+      height: 27px;
+      margin-bottom: 9px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      font-size: 11px;
+      box-shadow: 0 7px 16px rgba(108,92,246,.26);
+    }
+    .flow-step strong { display: block; font-size: 12.5px; color: #1e293b; line-height: 1.4; }
+    .flow-step span { display: block; margin-top: 4px; color: #8a93a8; font-size: 10.5px; line-height: 1.45; }
+
+    /* Tech */
+    .tech-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .tech-card {
+      display: flex;
+      gap: 15px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--surface);
+      box-shadow: var(--shadow-soft);
+    }
+    .tech-card .num {
+      flex: 0 0 auto;
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      background: var(--primary-soft);
+      color: var(--primary-deep);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .04em;
+    }
+    .tech-card h3 { margin: 1px 0 5px; font-size: 14.5px; }
+    .tech-card p { margin: 0; color: var(--muted); font-size: 12.8px; line-height: 1.7; }
+
+    /* About */
+    .about {
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 28px;
+      align-items: stretch;
+    }
+    .about-main {
+      padding: 38px;
+      border-radius: var(--radius-lg);
+      color: #fff;
+      background:
+        radial-gradient(circle at 90% 0%, rgba(255,138,91,.28), transparent 18rem),
+        linear-gradient(135deg, #0b1228, #171b3d 62%, #2b215c);
+      box-shadow: var(--shadow);
+    }
+    .about-main h2 { color: #fff; }
+    .about-main p { color: rgba(238,240,255,.72); font-size: 14px; line-height: 1.85; }
+    .about-main .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+    .about-main .chips span {
+      padding: 5px 10px;
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 999px;
+      background: rgba(255,255,255,.07);
+      color: rgba(255,255,255,.78);
+      font-size: 10.5px;
+      font-weight: 650;
+    }
+    .about-side {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 34px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      box-shadow: var(--shadow-soft);
+    }
+    .about-side h3 { margin: 0 0 12px; font-size: 17px; }
+    .about-side p { margin: 0 0 16px; color: var(--muted); font-size: 13.5px; line-height: 1.8; }
+    .about-side .contact-line { display: flex; gap: 8px; color: #3c4760; font-size: 12.5px; margin: 5px 0; }
+    .about-side .contact-line b { color: #8a93a8; font-weight: 650; min-width: 40px; }
+
+    /* CTA */
+    .cta {
+      padding: 44px 38px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(110deg, #6c5cf6 0%, #7d6cff 55%, #ff9a70 140%);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      box-shadow: 0 24px 60px rgba(108,92,246,.26);
+    }
+    .cta h2 { font-size: clamp(1.45rem, 2.8vw, 2rem); }
+    .cta p { margin: 5px 0 0; color: rgba(255,255,255,.75); font-size: 13px; }
+    .cta .btn { background: #fff; color: var(--primary-deep); box-shadow: 0 12px 26px rgba(44,30,120,.18); flex: 0 0 auto; }
+
+    footer {
+      padding: 32px 0 40px;
+      color: #8a93a8;
+      font-size: 11.5px;
+    }
+    .footer-inner { display: flex; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
+    .footer-inner strong { color: #4b566e; }
+
+    /* Reveal */
+    .reveal { animation: fadeUp .6s ease both; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal { animation: none; }
+      html { scroll-behavior: auto; }
+    }
+
+    @media (max-width: 980px) {
+      .hero-grid, .about { grid-template-columns: 1fr; }
+      .hero { padding-top: 112px; }
+      .hero-card { max-width: 560px; }
+      .feature-grid { grid-template-columns: 1fr 1fr; }
+      .flow { grid-template-columns: repeat(3, 1fr); }
+      .flow-step:nth-child(3)::after { display: none; }
+      .product-frame img { max-height: 540px; }
+    }
+    @media (max-width: 680px) {
+      .container { width: min(100% - 32px, 1180px); }
+      .nav { display: none; }
+      .hero { padding: 104px 0 120px; }
+      h1 { font-size: clamp(2.25rem, 11vw, 3.2rem); }
+      .hero-copy p { font-size: 14.5px; }
+      .actions { flex-direction: column; align-items: stretch; }
+      .btn { width: 100%; }
+      .feature-grid, .tech-grid { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: 1fr 1fr; }
+      .flow-step:nth-child(2n)::after { display: none; }
+      .flow-step:nth-child(3)::after { display: block; }
+      .flow-step:nth-child(3) { grid-column: span 1; }
+      .flow-step:last-child::after { display: none; }
+      .product-wrap { margin-top: -70px; }
+      .product-frame img { max-height: 380px; }
+      .section { padding: 62px 0; }
+      .about-main, .about-side, .cta { padding: 26px; }
+      .cta { flex-direction: column; align-items: flex-start; }
+      .cta .btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="#top" aria-label="数智漫首页">
+      <img src="assets/mark.svg" alt="数智漫 Logo">
+      <strong>数智漫<em>Shuziman</em></strong>
+    </a>
+    <nav class="nav" aria-label="页面导航">
+      <a href="#features">模块能力</a>
+      <a href="#workflow">生产流程</a>
+      <a href="#tech">技术方案</a>
+      <a href="#about">关于模块</a>
+      <a class="nav-cta" href="mailto:19933735713@163.com">预约演示</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="container hero-grid">
+      <div class="hero-copy">
+        <div class="eyebrow">AI Short Video Studio · Digital Human</div>
+        <h1>让一张人物图，<br><span>变成一条口播视频</span></h1>
+        <p>数智漫 AI 短视频创作平台的数字人口播模块。上传人物图、商品图和商品信息，自动完成前置场景图、卖点文案、TTS 配音与口播视频合成。</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="#workflow">查看生产流程</a>
+          <a class="btn btn-ghost" href="mailto:19933735713@163.com?subject=数智漫数字人口播模块演示预约">预约演示</a>
+        </div>
+        <div class="hero-note"><span class="dot"></span>静态产品展示页 · 实际生成需配置模型服务</div>
+      </div>
+
+      <aside class="hero-card" aria-label="模块速览">
+        <h2>Module Overview</h2>
+        <div class="row"><span>使用模式</span><strong>带货模式 / 自定义模式</strong></div>
+        <div class="row"><span>核心工作流</span><strong>前置图 · 配音 · 口播合成</strong></div>
+        <div class="row"><span>技术路径</span><strong>工作流 / 直连 API</strong></div>
+        <div class="row"><span>服务来源</span><strong>RunningHub · selfhost · API</strong></div>
+        <div class="row"><span>平台管线</span><strong><em>5 条</em>（团队项目）</strong></div>
+      </aside>
+    </div>
+  </section>
+
+  <div class="container product-wrap">
+    <div class="product-frame">
+      <div class="browser-bar" aria-hidden="true">
+        <i></i><i></i><i></i>
+        <div class="url">shuziman · digital human studio</div>
+      </div>
+      <img src="assets/digital-human.webp" alt="数智漫数字人口播模块界面：人物形象上传、服务配置与生成视频">
+    </div>
+    <div class="shot-caption">界面预览：数字人口播模块，支持人物素材上传、前置图工作流、配音合成与口播视频生成</div>
+  </div>
+
+  <section class="block" id="features">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="section-kicker">Capabilities</span>
+        <h2>两种模式，覆盖两类口播场景</h2>
+        <p>面向商家带货与个人口播两类需求，按模式组织输入、校验和生成分支。</p>
+      </div>
+      <div class="feature-grid">
+        <article class="feature-card reveal">
+          <div class="icon">🛍️</div>
+          <h3>带货模式</h3>
+          <p>人物图 + 商品图 + 商品标题/介绍，先生成商业口播场景图，再由 LLM 生成 80 字以内卖点文案，最后合成口播视频。</p>
+          <div class="tags"><span class="tag">人物 + 商品</span><span class="tag">卖点文案</span><span class="tag">场景合成</span></div>
+        </article>
+        <article class="feature-card reveal">
+          <div class="icon">🎙️</div>
+          <h3>自定义模式</h3>
+          <p>人物图 + 完整口播文案，跳过商品图与前置图合成，直接完成 TTS 配音与人物口播视频生成，链路更短。</p>
+          <div class="tags"><span class="tag">完整文案</span><span class="tag">快速出片</span><span class="tag">音色可控</span></div>
+        </article>
+        <article class="feature-card reveal">
+          <div class="icon">🔀</div>
+          <h3>双路径与多来源</h3>
+          <p>同时支持 ComfyUI / RunningHub 工作流与直连参考生视频 API；前置图服务和口播视频服务可分别选择来源。</p>
+          <div class="tags"><span class="tag">Workflow</span><span class="tag">Direct API</span><span class="tag">可切换</span></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="workflow" style="padding-top:0;">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="section-kicker">Workflow</span>
+        <h2>从素材到成片，六个环节</h2>
+        <p>模块负责业务编排与交互，LLM、TTS、媒体生成、历史记录由平台公共服务提供。</p>
+      </div>
+      <div class="flow-wrap reveal">
+        <div class="flow">
+          <div class="flow-step"><b>01</b><strong>素材上传</strong><span>人物图 / 商品图</span></div>
+          <div class="flow-step"><b>02</b><strong>前置图生成</strong><span>人物 + 商品场景</span></div>
+          <div class="flow-step"><b>03</b><strong>卖点文案</strong><span>用户输入 / LLM 生成</span></div>
+          <div class="flow-step"><b>04</b><strong>TTS 配音</strong><span>音色 · 语速 · 参考音频</span></div>
+          <div class="flow-step"><b>05</b><strong>口播合成</strong><span>场景图 + 旁白音频</span></div>
+          <div class="flow-step"><b>06</b><strong>成片下载</strong><span>final.mp4</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="tech" style="padding-top:0;">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="section-kicker">Engineering</span>
+        <h2>把不稳定的模型能力，编排成稳定的生产链路</h2>
+        <p>除了“能生成”，模块还处理来源选择、参数差异、失败分支和产物留存。</p>
+      </div>
+      <div class="tech-grid">
+        <article class="tech-card reveal">
+          <div class="num">01</div>
+          <div><h3>工作流 + 直连 API 双路径</h3><p>工作流适合定制画面与本地部署；直连 API 适合标准化口播与少运维场景。模块统一两套输入输出，业务层不混用参数。</p></div>
+        </article>
+        <article class="tech-card reveal">
+          <div class="num">02</div>
+          <div><h3>RunningHub / selfhost / API 多来源</h3><p>前置图与口播视频可分别选择来源，动态检查 API Key、ComfyUI 地址与工作流文件，减少无效配置。</p></div>
+        </article>
+        <article class="tech-card reveal">
+          <div class="num">03</div>
+          <div><h3>任务隔离与异常处理</h3><p>独立任务目录、生成前参数校验、工作流状态判断、视频 URL 提取与下载超时控制，错误定位到具体阶段。</p></div>
+        </article>
+        <article class="tech-card reveal">
+          <div class="num">04</div>
+          <div><h3>历史留存与跨模块协作</h3><p>生成后写入模式、商品信息、素材与 TTS 参数；与平台 TTS、媒体生成、历史记录服务按接口契约联调。</p></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="about" style="padding-top:0;">
+    <div class="container about">
+      <div class="about-main reveal">
+        <span class="section-kicker" style="color:#b9b2ff;">About This Module</span>
+        <h2>公司自研平台中的<br>数字人口播模块</h2>
+        <p>数智漫是公司自研的 AI 短视频创作平台，团队协作开发，覆盖标准成片、素材成片、数字人口播、图生视频与动作迁移等创作链路。本页展示的是本人负责的数字人口播模块，包括两种使用模式、三条核心工作流与工作流/直连 API 双路径。</p>
+        <div class="chips">
+          <span>公司自研</span><span>团队项目</span><span>数字人口播模块</span><span>2 种模式</span><span>3 个核心工作流</span><span>2 条技术路径</span>
+        </div>
+      </div>
+      <div class="about-side reveal">
+        <h3>关于这个展示页</h3>
+        <p>本页为静态产品展示，用于介绍数字人口播模块的界面、流程与工程方案。完整视频生成需要配置 LLM、TTS、图像/视频模型服务，未在本页开放实时生成。</p>
+        <div class="contact-line"><b>联系人</b><span>胡瀚允</span></div>
+        <div class="contact-line"><b>电话</b><span>19933735713</span></div>
+        <div class="contact-line"><b>邮箱</b><span>19933735713@163.com</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" style="padding-top:0;">
+    <div class="container">
+      <div class="cta reveal">
+        <div>
+          <h2>想看完整的数字人口播流程？</h2>
+          <p>可以预约一次屏幕演示，按真实业务场景走一遍从素材到成片的链路。</p>
+        </div>
+        <a class="btn" href="mailto:19933735713@163.com?subject=数智漫数字人口播模块演示预约">预约演示</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container footer-inner">
+    <span><strong>数智漫 · 数字人口播模块</strong> &nbsp; AI Short Video Studio</span>
+    <span>© 2026 胡瀚允 · 静态产品展示页</span>
+  </div>
+</footer>
+
+</body>
+</html>
